@@ -15,7 +15,7 @@ volumes:
 
 down:
 	docker-compose -f srcs/docker-compose.yml down
-	docker volume rm srcs_db srcs_wp
 	docker system prune -a -f
+#	docker volume rm srcs_db srcs_wp
 
 re:	down all 
