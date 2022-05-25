@@ -2,7 +2,7 @@ FROM debian:buster
 
 # install packages
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install mariadb mariadb-client mariadb-common
+RUN apt-get install mariadb-server mariadb-client mariadb-common -y
 
 # copy config files
 COPY src/wp_db.sql .

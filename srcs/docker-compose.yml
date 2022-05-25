@@ -4,7 +4,7 @@ services:
     
     nginx:
         container_name: "nginx"
-        build: ./requirements/nginx/
+        build: requirements/nginx/
         restart: unless-stopped
         networks:
             - inception
@@ -16,7 +16,7 @@ services:
 
     mariadb:
         container_name: mariadb
-        build: ./requirements/mariadb/
+        build: requirements/mariadb/
         restart: unless-stopped
         networks:
          - inception
@@ -26,14 +26,15 @@ services:
 
     wordpress:
         container_name: "wordpress"
-        build: ./requirements/wordpress/
+        build: requirements/wordpress/
         restart: unless-stopped
-        env_file: .env
+        env_file:
+         - .env
         environment:
-         - WORDPRESS_DB_HOST=$WP_DB_HOST
-         - WORDPRESS_DB_USER=$WP_DB_USR
-         - WORDPRESS_DB_NAME=$WP_DB_NAME
-         - WORDPRESS_DB_PASSWORD=$WP_DB_PWD
+         WORDPRESS_DB_HOST: mariadb:3306
+         WORDPRESS_DB_USER: alex
+         WORDPRESS_DB_NAME: wordpress
+         WORDPRESS_DB_PASSWORD: mypassword123
         ports:
          - "9000:9000"
         networks:
@@ -50,14 +51,14 @@ volumes:
         driver_opts:
           type: 'none'
           o: 'bind'
-          device: ${VOLUME_PATH}/db
+          device: ${HOME}/data/db
 
     wp:
         driver: local
         driver_opts:
           type: 'none'
           o: 'bind'
-          device: ${VOLUME_PATH}/wp
+          device: ${HOME}/data/wp
 
 networks:
     inception:
