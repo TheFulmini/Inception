@@ -1,21 +1,23 @@
-VOLUME_PATH=$(HOME)/data
+all : build
 
-all:	up
+build :
+	docker-compose -f ./srcs/docker-compose.yml up --build -d 
 
-up:	volumes
-	docker-compose -f srcs/docker-compose.yml up -d --build
+restart :	stop build
 
-volumes:
-	grep -q "afulmini.42.fr" /etc/hosts || sudo sed -i '1 i\127.0.0.1	afulmini.42.fr' /etc/hosts
-	[ -d /home/afulmini/data ] || \
-	( sudo mkdir -p /home/afulmini && \
-	sudo cp -rp srcs/requirements/tools/data ${HOME}. && \
-	sudo chown -R 82:82 $(VOLUME_PATH)/wp && \
-	sudo chown -R 100:101 $(VOLUME_PATH)/db )
+rebuild	:	clean build
 
-down:
-	docker-compose -f srcs/docker-compose.yml down
-	docker system prune -a -f
-#	docker volume rm srcs_db srcs_wp
+stop :
+	docker-compose -f ./srcs/docker-compose.yml stop
 
-re:	down all 
+clean :	stop 
+	docker-compose -f ./srcs/docker-compose.yml rm -f
+	docker system prune -af	
+
+down :
+	docker-compose -f ./srcs/docker-compose.yml down --volumes
+
+fclean:	stop clean down
+
+re: fclean all
+

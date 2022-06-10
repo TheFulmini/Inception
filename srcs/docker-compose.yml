@@ -1,65 +1,62 @@
-version: '3'
+version: '2.2' # version of docker-compose
 
-services:
-    
-    nginx:
-        container_name: "nginx"
-        build: requirements/nginx/
-        restart: unless-stopped
-        networks:
-            - inception
-        volumes:
-          - wp:/var/www/wordpress
-          #- ${VOLUME_PATH}/wordpress:/var/www/wordpress/
-        ports:
-          - "443:443"
+services: # list of services we want to run as part of our application
 
-    mariadb:
-        container_name: mariadb
-        build: requirements/mariadb/
-        restart: unless-stopped
-        networks:
-         - inception
-        volumes:
-         - db:/var/lib/mysql
-         #- ${VOLUME_PATH}/mariadb:/var/lib/mysql/
+  nginx: # name of the service, it will automatically become a network alias | "--network-alias" option with docker run
 
-    wordpress:
-        container_name: "wordpress"
-        build: requirements/wordpress/
-        restart: unless-stopped
-        env_file:
-         - .env
-        environment:
-         WORDPRESS_DB_HOST: mariadb:3306
-         WORDPRESS_DB_USER: alex
-         WORDPRESS_DB_NAME: wordpress
-         WORDPRESS_DB_PASSWORD: mypassword123
-        ports:
-         - "9000:9000"
-        networks:
-         - inception
-        volumes:
-          - wp:/var/www/wordpress
-          #- ${VOLUME_PATH}/wordpress:/var/www/wordpress/
-        depends_on:
-            - mariadb
+    build: ./requirements/nginx # location of the Dockerfile used to build the service
+    ports:
+      - "443:443" # binds the host port 3000 to the published container port 3000 (HOST:CONTAINER) | "-p 3000:3000" option with docker run
+    volumes:
+      - wp:/var/www/html
+    networks:
+      - inception
+    restart: always # restart the service if it crashes
+    depends_on:
+      - wordpress
+    container_name: nginx
 
+  wordpress:
+    build: ./requirements/wordpress
+    env_file:
+      - .env
+    volumes:
+      - wp:/var/www/html
+    networks:
+      - inception
+    restart: always
+    depends_on:
+      - mariadb
+    container_name: wordpress
+
+  mariadb:
+    build: ./requirements/mariadb
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - inception
+    restart: always
+    container_name: mariadb
+  
 volumes:
-    db:
-        driver: local
-        driver_opts:
-          type: 'none'
-          o: 'bind'
-          device: ${HOME}/data/db
-
-    wp:
-        driver: local
-        driver_opts:
-          type: 'none'
-          o: 'bind'
-          device: ${HOME}/data/wp
+  wp:
+    driver: local
+    driver_opts:
+      type: none
+      o: 'bind'
+      device: ${HOME}/data/wp
+  db:
+    driver: local
+    driver_opts:
+      type: none
+      o: 'bind'
+      device: ${HOME}/data/db
 
 networks:
-    inception:
+  inception: # create a network inception for the containers on this network to communicate | equivalent to docker network create inception command
 
+# run with docker-compose up -d | -d option to run it in the background
+# docker-compose create a default network for the application
+# docker-compose build to rebuild image after altering Dockerfile
