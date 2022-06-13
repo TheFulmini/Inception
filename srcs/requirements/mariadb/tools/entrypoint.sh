@@ -4,6 +4,8 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 
     mysql_install_db --auth-root-socket-user=USER # --auth-root-authentication-method=normal
 
+fi
+
 if [ ! -d "/var/lib/mysql/$DB_NAME" ]; then
 
     service mysql start
