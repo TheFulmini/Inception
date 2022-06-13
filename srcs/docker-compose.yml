@@ -1,17 +1,15 @@
-version: '2.2' # version of docker-compose
+version: '3'
 
-services: # list of services we want to run as part of our application
-
-  nginx: # name of the service, it will automatically become a network alias | "--network-alias" option with docker run
-
-    build: ./requirements/nginx # location of the Dockerfile used to build the service
+services: 
+  nginx:
+    build: ./requirements/nginx
     ports:
-      - "443:443" # binds the host port 3000 to the published container port 3000 (HOST:CONTAINER) | "-p 3000:3000" option with docker run
+      - "443:443"
     volumes:
       - wp:/var/www/html
     networks:
       - inception
-    restart: always # restart the service if it crashes
+    restart: always
     depends_on:
       - wordpress
     container_name: nginx
@@ -55,8 +53,4 @@ volumes:
       device: ${HOME}/data/db
 
 networks:
-  inception: # create a network inception for the containers on this network to communicate | equivalent to docker network create inception command
-
-# run with docker-compose up -d | -d option to run it in the background
-# docker-compose create a default network for the application
-# docker-compose build to rebuild image after altering Dockerfile
+  inception:
